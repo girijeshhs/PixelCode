@@ -17,7 +17,13 @@ export async function POST(request: NextRequest) {
     select: { id: true, leetcodeUsername: true }
   });
 
-  const results: Array<{ userId: string; status: string; reason?: string }> = [];
+  const results: Array<{
+    userId: string;
+    status: string;
+    reason?: string;
+    retryable?: boolean;
+    retryAfterSeconds?: number;
+  }> = [];
 
   for (const user of users) {
     if (!user.leetcodeUsername) {

@@ -1,15 +1,27 @@
-const leaders = [
+type Leader = { name: string; xp: number; streak: number };
+
+type LeaderboardPreviewProps = {
+  leaders?: Leader[];
+  label?: string;
+  footerText?: string;
+};
+
+const fallbackLeaders: Leader[] = [
   { name: "AlgoAce", xp: 18420, streak: 32 },
   { name: "ByteWitch", xp: 17310, streak: 28 },
   { name: "PixelKnight", xp: 12450, streak: 14 }
 ];
 
-export function LeaderboardPreview() {
+export function LeaderboardPreview({
+  leaders = fallbackLeaders,
+  label = "Global",
+  footerText = "Rank up by earning XP daily."
+}: LeaderboardPreviewProps) {
   return (
     <section className="pixel-card p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="pixel-heading">Leaderboard</h2>
-        <span className="text-xs text-pixel-muted">Global</span>
+        <span className="text-xs text-pixel-muted">{label}</span>
       </div>
       <div className="space-y-3">
         {leaders.map((leader, index) => (
@@ -27,9 +39,7 @@ export function LeaderboardPreview() {
           </div>
         ))}
       </div>
-      <div className="text-xs text-pixel-muted">
-        TODO: Replace with paginated API results.
-      </div>
+      <div className="text-xs text-pixel-muted">{footerText}</div>
     </section>
   );
 }

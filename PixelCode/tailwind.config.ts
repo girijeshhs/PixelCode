@@ -5,7 +5,7 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        pixel: ["'Press Start 2P'", "system-ui", "sans-serif"],
+        pixel: ["var(--font-pixel)", "system-ui", "sans-serif"],
         sans: ["var(--font-sans)", "system-ui", "sans-serif"]
       },
       colors: {

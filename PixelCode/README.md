@@ -16,11 +16,11 @@ Gamified LeetCode progress tracking with a pixel-art inspired UI.
 - LeetCode has no official public API. We only use the public GraphQL endpoint and only for public profile stats.
 - Daily solved counts are derived by comparing snapshots stored in `LeetCodeSnapshot`.
 - Snapshot cron lives at `POST /api/cron/daily-snapshot` and requires the `x-cron-secret` header.
+- Auth is implemented with email + password and a signed session cookie (`AUTH_SECRET`).
+- User dashboards pull from `/api/user/profile` and `/api/user/progress`.
 
 ## TODO
 
-- Implement auth (email + OAuth) and protect API routes.
-- Build onboarding flow for LeetCode username entry.
+- Add OAuth providers (GitHub optional) if needed.
 - Add cron infrastructure (Vercel cron / GitHub Actions / external scheduler).
 - Add error monitoring and rate-limit backoff strategy.
-- Replace placeholder UI data with real API responses.
