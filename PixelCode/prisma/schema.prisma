@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String             @id @default(cuid())
+  email              String             @unique
+  passwordHash       String?
+  displayName        String
+  leetcodeUsername   String?            @unique
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  totalXp            Int                @default(0)
+  level              Int                @default(0)
+  streak             Int                @default(0)
+  streakFreezeTokens Int                @default(0)
+  lastSnapshotAt     DateTime?
+
+  snapshots          LeetCodeSnapshot[]
+  dailyProgress      DailyProgress[]
+
+  @@index([leetcodeUsername])
+}
+
+model LeetCodeSnapshot {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+
+  totalSolved  Int
+  easySolved   Int
+  mediumSolved Int
+  hardSolved   Int
+
+  snapshotDate DateTime @db.Date
+  fetchedAt    DateTime @default(now())
+
+  @@unique([userId, snapshotDate])
+  @@index([snapshotDate])
+}
+
+model DailyProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+
+  progressDate DateTime @db.Date
+  deltaEasy    Int      @default(0)
+  deltaMedium  Int      @default(0)
+  deltaHard    Int      @default(0)
+  deltaTotal   Int      @default(0)
+  xpEarned     Int      @default(0)
+  streakAfter  Int      @default(0)
+
+  createdAt    DateTime @default(now())
+
+  @@unique([userId, progressDate])
+  @@index([progressDate])
+}
