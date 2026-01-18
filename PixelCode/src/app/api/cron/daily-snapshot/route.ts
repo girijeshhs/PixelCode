@@ -24,7 +24,14 @@ export async function POST(request: NextRequest) {
       continue;
     }
 
-    const result = await recordDailySnapshot(user.id, user.leetcodeUsername);
+    let result = await recordDailySnapshot(user.id, user.leetcodeUsername);
+
+    if (result.status === "failed" && result.retryable) {
+      const retryDelayMs = Math.min(3000, (result.retryAfterSeconds ?? 1) * 1000);
+      await sleep(retryDelayMs);
+      result = await recordDailySnapshot(user.id, user.leetcodeUsername);
+    }
+
     results.push({ userId: user.id, ...result });
 
     // Gentle pacing to reduce risk of rate limiting.

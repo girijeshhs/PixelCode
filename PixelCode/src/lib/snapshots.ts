@@ -28,7 +28,24 @@ export async function recordDailySnapshot(userId: string, leetcodeUsername: stri
   } catch (error) {
     const message =
       error instanceof LeetCodeFetchError ? error.message : "Unknown fetch error";
-    return { status: "failed" as const, reason: message };
+    const retryable = error instanceof LeetCodeFetchError ? !!error.retryable : false;
+    const retryAfterSeconds =
+      error instanceof LeetCodeFetchError ? error.retryAfterSeconds : undefined;
+
+    console.warn("Snapshot fetch failed", {
+      userId,
+      leetcodeUsername,
+      message,
+      retryable,
+      retryAfterSeconds
+    });
+
+    return {
+      status: "failed" as const,
+      reason: message,
+      retryable,
+      retryAfterSeconds
+    };
   }
 
   const previousSnapshot = await prisma.leetCodeSnapshot.findFirst({
@@ -49,15 +66,15 @@ export async function recordDailySnapshot(userId: string, leetcodeUsername: stri
       }
     });
 
+    const user = await tx.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return;
+    }
+
     if (previousSnapshot) {
-      const user = await tx.user.findUnique({
-        where: { id: userId }
-      });
-
-      if (!user) {
-        return;
-      }
-
       const gamified = calculateDailyProgress({
         previous: previousSnapshot,
         current: stats,
@@ -91,7 +108,16 @@ export async function recordDailySnapshot(userId: string, leetcodeUsername: stri
           lastSnapshotAt: new Date()
         }
       });
+
+      return;
     }
+
+    await tx.user.update({
+      where: { id: userId },
+      data: {
+        lastSnapshotAt: new Date()
+      }
+    });
   });
 
   return { status: "ok" as const };
